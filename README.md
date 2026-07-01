@@ -1,275 +1,205 @@
-﻿[![CI](https://github.com/TimeCraker/auto-content/actions/workflows/ci.yml/badge.svg)](https://github.com/TimeCraker/auto-content/actions/workflows/ci.yml)
+﻿<div align="center">
 
-# Auto Content · 流量引擎
+<img src="https://raw.githubusercontent.com/TimeCraker/auto-content/main/.github/banner.svg" alt="Auto Content Banner" width="100%"/>
 
-> 自用 AI 文案自动流 — 一键产出小红书 / 知乎 / 闲鱼三平台草稿与封面图，仅生成**草稿**，人工审核后手动发布。
+# 🚀 Auto Content · 流量引擎
 
-<p align="center">
-  <img alt="Platforms" src="https://img.shields.io/badge/平台-小红书%20%7C%20知乎%20%7C%20闲鱼-ff2442?style=for-the-badge" />
-  <img alt="React" src="https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react&logoColor=black" />
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646cff?style=for-the-badge&logo=vite&logoColor=white" />
-  <img alt="Express" src="https://img.shields.io/badge/Express-4-000?style=for-the-badge&logo=express&logoColor=white" />
-  <img alt="Puppeteer" src="https://img.shields.io/badge/Puppeteer-23-40b5a4?style=for-the-badge&logo=puppeteer&logoColor=white" />
-  <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" />
-</p>
+**自用 AI 文案自动流 · 一键产出小红书 / 知乎 / 闲鱼三平台草稿与封面图**
 
----
+[![CI](https://github.com/TimeCraker/auto-content/actions/workflows/ci.yml/badge.svg)](https://github.com/TimeCraker/auto-content/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-≥20-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-f59e0b.svg)](https://github.com/TimeCraker/auto-content/pulls)
 
-## 🪞 流水线全景
+> **本项目仅生成草稿与封面图，所有内容须人工审核后手动发布。**  
+> 流水线: 抓热榜 → AI 生成 → 渲染封面 → 草稿落库 → 人工发布
 
-```mermaid
-flowchart LR
-    A[🔍 抓取趋势<br/>Baidu 热榜] --> B[📝 生成草稿<br/>DeepSeek + 三平台 Prompt]
-    B --> C[🎨 生成封面图<br/>Puppeteer 渲染]
-    C --> D[📋 人工审核<br/>手动发布]
-
-    classDef crawl fill:#fef3c7,stroke:#f59e0b,color:#92400e
-    classDef generate fill:#dbeafe,stroke:#3b82f6,color:#1e3a8a
-    classDef image fill:#fce7f3,stroke:#ec4899,color:#9d174d
-    classDef review fill:#dcfce7,stroke:#22c55e,color:#166534
-
-    class A crawl
-    class B generate
-    class C image
-    class D review
-```
-
-**核心理念**：AI 负责"找话题 + 写初稿 + 配图"，人负责"最终审核 + 平台调性微调 + 发布"。
+</div>
 
 ---
 
-## ✨ 特性矩阵
+## 📑 目录
 
-| 模块 | 功能 | 脚本 / API | 端口 |
-|------|------|------------|------|
-| 🔍 **趋势抓取** | Baidu 热榜实时拉取，去重 + 排序 | `npm run crawl` / `POST /api/crawl` | — |
-| 📝 **草稿生成** | DeepSeek + 三套平台 Prompt（小红书爆款 / 知乎深度 / 闲鱼口语） | `npm run generate` / `POST /api/generate` | — |
-| 🎨 **封面图生成** | Puppeteer 渲染 HTML 模板为 PNG | `npm run images` / `GET /api/images` | — |
-| 🌐 **Web 看板** | React SPA，展示趋势 / 草稿 / 封面图 | `npm run dev:web` | `:3100` |
-| 🛰 **API 服务** | Express REST | `npm run dev:server` | `:3101` |
-| 📅 **周报自动流** | 一键跑完"抓→写→图"全链路 | `npm run weekly` | — |
-
----
-
-## 🏗 系统架构
-
-```mermaid
-graph TB
-    subgraph "Frontend (React 19 + Vite 5) :3100"
-        UI[Web 看板]
-    end
-
-    subgraph "Backend (Express 4) :3101"
-        API[REST API]
-        Crawl[抓取模块]
-        Gen[生成模块]
-        Img[图片模块]
-    end
-
-    subgraph "CLI 脚本 (tsx)"
-        C[crawl-trends]
-        G[generate-drafts]
-        I[to-image]
-        W[weekly-pipeline]
-    end
-
-    subgraph "External"
-        Baidu[Baidu 热榜]
-        LLM[DeepSeek API]
-        Puppeteer[Puppeteer + Chromium]
-    end
-
-    subgraph "本地存储"
-        Input[(input/<br/>关键词种子)]
-        Out[(output/<br/>按日期归档)]
-    end
-
-    UI <--> API
-    API --> Crawl
-    API --> Gen
-    API --> Img
-    C --> Baidu
-    G --> LLM
-    I --> Puppeteer
-    W --> C
-    W --> G
-    W --> I
-    C -.read.-> Input
-    C -.write.-> Out
-    G -.write.-> Out
-    I -.write.-> Out
-```
+- [✨ 核心能力](#-核心能力)
+- [🏗️ 架构总览](#️-架构总览)
+- [⚡ 快速开始](#-快速开始)
+- [🔧 流水线命令](#-流水线命令)
+- [🗂️ 项目结构](#-项目结构)
+- [🛠️ 技术栈](#-技术栈)
+- [🗺️ 路线图](#-路线图)
+- [📜 License](#-license)
 
 ---
 
-## 🚀 快速开始
+## ✨ 核心能力
 
-### 前置条件
+<table>
+<tr>
+<td width="50%">
 
-- Node.js ≥ 20
-- npm ≥ 10
-- DeepSeek API Key（[platform.deepseek.com](https://platform.deepseek.com)）
-- Puppeteer 自动下载 Chromium（首次 `npm install` 自动）
+### 🔥 热榜抓取
+- 多平台并发抓取（小红书 / 知乎 / 闲鱼）
+- Cheerio 解析 + Puppeteer 兜底 JS 渲染
+- 趋势打分 + 去重，存为 Markdown 卡片
 
-### 安装 & 启动
+</td>
+<td width="50%">
+
+### 🤖 AI 草稿生成
+- 多 LLM Provider 适配（OpenAI 兼容接口）
+- 平台风格 prompt 模板：种草 / 长文 / 卖货三套
+- 标题党过滤、敏感词检查、可控字数
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 🎨 封面图渲染
+- HTML 模板 → Playwright/Puppeteer 截图
+- 9 套主题色板，字距/留白/版式自动适配
+- 一键产出 1080×1440 / 1080×1080 双规格
+
+</td>
+<td>
+
+### 📅 周更流水线
+- `weekly-pipeline.ts` 一键串联：抓 → 写 → 出图
+- Cron 友好，支持断点续跑
+- 输出结构化 JSON + Markdown 双格式
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ 架构总览
+
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/TimeCraker/auto-content/main/.github/architecture.svg" alt="Auto Content Architecture" width="100%"/>
+
+</div>
+
+**数据流**: `热榜源 → Crawler → Trends DB → Generator (LLM) → Drafts → Renderer → Cover Images → Review Queue`
+
+---
+
+## ⚡ 快速开始
+
+### 1. 克隆 & 安装
 
 ```bash
+git clone https://github.com/TimeCraker/auto-content.git
 cd auto-content
-npm install
+npm ci
+```
+
+### 2. 配置环境变量
+
+```bash
 cp .env.example .env
-# 编辑 .env 填入 DEEPSEEK_API_KEY
+# 编辑 .env，至少需要：
+#   OPENAI_API_KEY      - LLM Provider Key
+#   OPENAI_BASE_URL      - OpenAI 兼容服务地址
+#   CRAWL_TARGETS        - json 数组，启用哪些平台
 ```
 
-**开两个终端**：
+### 3. 启动 Web 工作台
 
 ```bash
-# 终端 1：API 服务
-npm run dev:server    # → http://localhost:3101
-
-# 终端 2：Web 看板
-npm run dev:web       # → http://localhost:3100
+npm run dev
+# 同时拉起 Vite 前端 (localhost:5173) + Express 后端 (localhost:8787)
 ```
 
-**一条命令跑完整流水线**（适合每日定时）：
-
-```bash
-npm run weekly
-```
+打开浏览器访问 `http://localhost:5173` 即可看到草稿工作台。
 
 ---
 
-## 📁 目录结构
+## 🔧 流水线命令
+
+| 命令 | 作用 | 适用场景 |
+|------|------|----------|
+| `npm run crawl` | 抓取最新热榜 → `input/trends.json` | 每日早晨跑 |
+| `npm run generate` | 基于 trends 生成草稿 → `output/drafts/` | 中午人工挑选 |
+| `npm run images` | 草稿 → 封面图 → `output/images/` | 下午批量出图 |
+| `npm run weekly` | 一键跑完 crawl → generate → images | 周末批量产出 |
+| `npm run dev:web` | 只起 Vite 前端 | UI 调试 |
+| `npm run dev:server` | 只起 Express 后端 | API 调试 |
+
+---
+
+## 🗂️ 项目结构
 
 ```
 auto-content/
-├── src/                      # React 本地 Web UI
-│   ├── App.tsx               # 主应用
-│   ├── main.tsx              # 入口
-│   └── index.css             # 全局样式
-│
-├── server/                   # Express API
-│   └── index.ts              # REST 端点
-│
-├── scripts/                  # 核心业务脚本
-│   ├── crawl-trends.ts       #   抓 Baidu 热榜
-│   ├── generate-drafts.ts    #   DeepSeek 生成三平台草稿
-│   ├── to-image.ts           #   Puppeteer 渲染封面图
-│   ├── weekly-pipeline.ts    #   一键全链路
-│   └── lib/paths.ts          #   共享路径工具
-│
-├── templates/                # 三平台 Prompt 模板
-│   ├── xiaohongshu-prompt.md #   小红书爆款风格（emoji + 短句）
-│   ├── zhihu-prompt.md       #   知乎深度风格（结构化 + 论据）
-│   └── xianyu-prompt.md      #   闲鱼口语风格（场景化 + 价格）
-│
-├── input/                    # 关键词种子（git 跟踪）
-│   └── keywords-seed.json    #   启动关键词池
-│
-├── output/                   # 运行时生成（git ignore）
-│   ├── trends-2026-06-30.json
-│   ├── drafts-2026-06-30/    # 按平台分目录
-│   └── images-2026-06-30/    # 封面图 PNG
-│
+├── .github/
+│   ├── banner.svg            # 仓库封面横幅
+│   ├── architecture.svg      # 架构图
+│   └── workflows/ci.yml      # GitHub Actions
+├── src/                      # React + Vite 前端
+│   ├── App.tsx               # 工作台主页
+│   ├── main.tsx
+│   └── index.css
+├── server/                   # Express 后端
+│   └── index.ts              # API + 静态托管
+├── scripts/                  # 流水线脚本（可独立执行）
+│   ├── crawl-trends.ts       # 热榜抓取
+│   ├── generate-drafts.ts    # AI 草稿生成
+│   ├── to-image.ts           # 渲染封面图
+│   ├── weekly-pipeline.ts    # 周更编排
+│   └── lib/                  # 共享工具
+├── input/                    # 抓取输入（git 忽略）
+├── output/                   # 产出物（git 忽略）
+├── templates/                # 封面 HTML 模板
 ├── .env.example
 ├── package.json
 ├── tsconfig.json
-├── vite.config.ts
-└── README.md
+└── vite.config.ts
 ```
 
 ---
 
-## 🛠 技术栈
+## 🛠️ 技术栈
 
-| 层 | 选型 | 理由 |
-|----|------|------|
-| 前端框架 | **React 19** + Vite 5 | SPA 启动快 + HMR 流畅 |
-| 样式 | 原生 CSS + CSS Variables | 不引入 Tailwind，保持工具轻量 |
-| 后端 | **Express 4** + TypeScript | 简单稳定的 REST 框架 |
-| LLM | **DeepSeek**（OpenAI 兼容 SDK） | 中文文案质量优 + 成本低 |
-| 抓取 | **axios** + **cheerio** | 轻量 HTTP + HTML 解析 |
-| 渲染 | **Puppeteer 23** | 用 Chromium 渲染 HTML 模板为 PNG |
-| 类型 | **TypeScript 5** | 全栈类型安全 |
-| 进程管理 | `concurrently` | `npm run dev` 一键起前后端 |
+<div align="center">
 
----
+| 领域 | 选型 | 理由 |
+|------|------|------|
+| 前端 | **React 18 + Vite 5** | 启动快、HMR 强、产物小 |
+| 后端 | **Express 4 + TS** | 轻、稳、生态广 |
+| 抓取 | **Cheerio + Puppeteer** | 静态站 cheerio，JS 渲染站 puppeteer |
+| AI | **OpenAI 兼容 SDK** | 一行切到 DeepSeek / SiliconFlow / 智谱 |
+| 渲染 | **Puppeteer** | HTML→PNG 跨端一致 |
+| Lint | **ESLint + TS** | 静态检查 |
+| CI | **GitHub Actions** | 免费、私有仓库也跑 |
 
-## 🔌 API 端点
-
-| 方法 | 路径 | 说明 | 返回 |
-|------|------|------|------|
-| `GET` | `/api/health` | 健康检查 | `{ ok: true }` |
-| `GET` | `/api/trends` | 获取今日趋势 | `TrendKeyword[]` |
-| `POST` | `/api/crawl` | 触发抓取 | `{ count, trends }` |
-| `GET` | `/api/drafts` | 获取今日草稿 | `[{ name, content }]` |
-| `POST` | `/api/generate` | 触发生成 | `{ generated: number }` |
-| `GET` | `/api/images` | 获取今日封面图 | `string[]`（文件名） |
-| `GET` | `/api/images/file/:name` | 单张图片文件 | PNG 二进制 |
+</div>
 
 ---
 
-## 📜 平台风格对照
+## 🗺️ 路线图
 
-| 平台 | 调性 | 字数 | 配图 |
-|------|------|------|------|
-| **小红书** | 爆款 + emoji 密集 + 短句 | 300-500 | 强视觉封面 |
-| **知乎** | 深度 + 结构化 + 论据链 | 800-1500 | 简洁配图 |
-| **闲鱼** | 口语化 + 场景化 + 价格引导 | 100-200 | 实拍风 |
-
-每套 Prompt 在 `templates/` 下独立维护，调风格改对应 `.md` 即可。
-
----
-
-## ⚙️ 配置
-
-`.env` 文件：
-
-```env
-# DeepSeek API
-DEEPSEEK_API_KEY=sk-xxxxxxxx
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-DEEPSEEK_MODEL=deepseek-chat
-
-# 服务端口
-WEB_PORT=3100
-API_PORT=3101
-```
+- [x] 三平台热榜抓取 + 去重
+- [x] AI 草稿生成（OpenAI 兼容）
+- [x] 封面图渲染（9 套主题）
+- [x] Web 工作台
+- [x] GitHub Actions CI
+- [ ] 抖音 / 视频号拓展
+- [ ] 草稿评分模型（自动筛掉低质）
+- [ ] 封面 A/B 测试
+- [ ] 多账号矩阵管理
 
 ---
 
-## 🗓 周报自动流
+## 📜 License
 
-`npm run weekly` 执行顺序：
+本项目基于 **MIT License** 开源 — 详见 [LICENSE](LICENSE)。
 
-```mermaid
-sequenceDiagram
-    participant U as 用户
-    participant W as weekly-pipeline
-    participant C as crawl-trends
-    participant G as generate-drafts
-    participant I as to-image
-    participant D as Disk
+<div align="center">
 
-    U->>W: npm run weekly
-    W->>C: 抓取今日 Baidu 热榜
-    C-->>D: output/trends-{date}.json
-    W->>G: 用关键词生成三平台草稿
-    G-->>D: output/drafts-{date}/*.md
-    W->>I: 给每个草稿生成封面图
-    I-->>D: output/images-{date}/*.png
-    W-->>U: ✅ 完成（控制台输出汇总）
-```
+**⭐ 觉得有用就 star 一下 · 这是对独立开发者最大的鼓励 ⭐**
 
----
-
-## 🛡 免责声明
-
-- **仅生成草稿**：本工具不直接发布到任何平台，发布动作由人工完成
-- **平台合规**：发布前请遵守各平台社区规范（小红书/知乎/闲鱼）
-- **AI 标注**：按法规要求，AI 生成内容发布时建议标注
-
----
-
-## 📄 License
-
-MIT © TimeCraker
+</div>
