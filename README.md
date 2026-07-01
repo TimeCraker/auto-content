@@ -1,3 +1,5 @@
+﻿[![CI](https://github.com/TimeCraker/auto-content/actions/workflows/ci.yml/badge.svg)](https://github.com/TimeCraker/auto-content/actions/workflows/ci.yml)
+
 # Auto Content · 流量引擎
 
 > 自用 AI 文案自动流 — 一键产出小红书 / 知乎 / 闲鱼三平台草稿与封面图，仅生成**草稿**，人工审核后手动发布。
